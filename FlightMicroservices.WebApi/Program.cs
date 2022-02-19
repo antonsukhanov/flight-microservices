@@ -1,4 +1,5 @@
 using System.Reflection;
+using Confluent.Kafka.DependencyInjection;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,11 +21,16 @@ builder.Services.AddSwaggerGen(c =>
             Email = string.Empty,
         }
     });
-    
+
     // Set the comments path for the Swagger JSON and UI.
     var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
     var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
     c.IncludeXmlComments(xmlPath);
+});
+builder.Services.AddKafkaClient(new Dictionary<string, string>
+{
+    { "bootstrap.servers", "localhost:9092" },
+    { "enable.idempotence", "true" }
 });
 
 // Configure middlewares.
