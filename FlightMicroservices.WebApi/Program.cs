@@ -1,4 +1,5 @@
 using System.Reflection;
+using Confluent.Kafka;
 using Confluent.Kafka.DependencyInjection;
 using Microsoft.OpenApi.Models;
 
@@ -27,10 +28,9 @@ builder.Services.AddSwaggerGen(c =>
     var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
     c.IncludeXmlComments(xmlPath);
 });
-builder.Services.AddKafkaClient(new Dictionary<string, string>
+builder.Services.AddKafkaClient(new ProducerConfig
 {
-    { "bootstrap.servers", "localhost:9092" },
-    { "enable.idempotence", "true" }
+    BootstrapServers = "localhost:9092"
 });
 
 // Configure middlewares.
