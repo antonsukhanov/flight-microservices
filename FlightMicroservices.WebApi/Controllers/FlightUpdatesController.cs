@@ -1,6 +1,6 @@
 using System.Text.Json;
 using Confluent.Kafka;
-using FlightMicroservices.WebApi.Models;
+using FlightMicroservices.WebApi.Models.Dto;
 using Microsoft.AspNetCore.Mvc;
 
 // ReSharper disable BuiltInTypeReferenceStyle
