@@ -2,32 +2,64 @@ version: '3.8'
 services:
   zookeeper:
     image: confluentinc/cp-zookeeper:latest
-    container_name: cp-zookeeper
+    container_name: zookeeper
+    restart: always
     networks:
-      - kafka_network
+      - microservices
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
   kafka:
     image: confluentinc/cp-kafka:latest
-    container_name: cp-kafka
+    container_name: kafka
+    restart: always
     depends_on:
       - zookeeper
     networks:
-      - kafka_network
-    ports:
-      - 9092:9092
+      - microservices
     expose:
       - 9093
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: DOCKER_NET://kafka:9093,HOST_NET://localhost:9092
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: DOCKER_NET:PLAINTEXT,HOST_NET:PLAINTEXT
-      KAFKA_INTER_BROKER_LISTENER_NAME: DOCKER_NET
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9093
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_CONFLUENT_SUPPORT_METRICS_ENABLE: 0
+  flight-microservices-db:
+    image: postgres:latest
+    container_name: db
+    networks:
+      - microservices
+    expose:
+      - 5432
+    environment:
+      POSTGRES_DB: flight-microservices-db
+      POSTGRES_USER: consumer
+      POSTGRES_PASSWORD: consumer
+  webapi:
+    build: ./FlightMicroservices.WebApi
+    container_name: webapi
+    restart: always
+    ports:
+      - 5080:80
+    expose:
+      - 80
+    networks:
+      - microservices
+    depends_on:
+      - kafka
+    environment:
+      - Logging__Console__FormatterName=Simple
+  consumer:
+    build: ./FlightMicroservices.Consumer
+    container_name: consumer
+    restart: always
+    networks:
+      - microservices
+    depends_on:
+      - kafka
+      - db
 networks:
-  kafka_network:
-    name: cp-kafka
+  microservices:
+    name: microservices-network
     driver: bridge
