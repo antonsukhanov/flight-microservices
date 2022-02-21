@@ -4,11 +4,11 @@ using FlightMicroservices.Consumer;
 using FlightMicroservices.Consumer.Models.Contexts;
 using Microsoft.EntityFrameworkCore;
 
-IHost host = Host.CreateDefaultBuilder(args)
-    .ConfigureServices(services =>
+var host = Host.CreateDefaultBuilder(args)
+    .ConfigureServices((context, services) =>
     {
         services.AddDbContext<ApplicationDbContext>(options => options
-            .UseNpgsql("Host=localhost;Port=5432;Database=flight-consumer-db;Username=consumer;Password=consumer"));
+            .UseNpgsql(context.Configuration.GetConnectionString("ApplicationDatabase")));
         services.AddKafkaClient(new ConsumerConfig
         {
             BootstrapServers = "kafka:9093",
