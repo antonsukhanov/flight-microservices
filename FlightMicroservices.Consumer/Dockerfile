@@ -3,10 +3,11 @@ WORKDIR /app
 
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src
-COPY ["FlightMicroservices.Consumer/FlightMicroservices.Consumer.csproj", "FlightMicroservices.Consumer/"]
+COPY ["FlightMicroservices.Consumer.csproj", "FlightMicroservices.Consumer/"]
 RUN dotnet restore "FlightMicroservices.Consumer/FlightMicroservices.Consumer.csproj"
-COPY . .
+COPY . FlightMicroservices.Consumer/
 WORKDIR "/src/FlightMicroservices.Consumer"
+RUN ls -la
 RUN dotnet build "FlightMicroservices.Consumer.csproj" -c Release -o /app/build
 
 FROM build AS publish
