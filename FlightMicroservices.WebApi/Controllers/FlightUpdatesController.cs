@@ -23,7 +23,7 @@ public class FlightUpdatesController : ControllerBase
     }
 
     /// <summary>
-    /// Processes new flight update report
+    ///     Processes new flight update report
     /// </summary>
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -40,12 +40,13 @@ public class FlightUpdatesController : ControllerBase
         {
             Value = JsonSerializer.Serialize(flightUpdateDto)
         };
-        
+
         var result = await _producer.ProduceAsync(TopicName, message);
-        
-        _logger.LogInformation("[{TraceIdentifier}] Published flight update report to topic '{TopicName}' with offset '{MessageOffset}'",
+
+        _logger.LogInformation(
+            "[{TraceIdentifier}] Published flight update report to topic '{TopicName}' with offset '{MessageOffset}'",
             HttpContext.TraceIdentifier, TopicName, result.Offset.Value);
-        
+
         return NoContent();
     }
 }

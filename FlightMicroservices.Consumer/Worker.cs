@@ -10,8 +10,8 @@ namespace FlightMicroservices.Consumer;
 public class Worker : BackgroundService
 {
     private const string TopicName = "flight-updates";
+    private readonly IConsumer<Null, string> _consumer;
     private readonly ILogger<Worker> _logger;
-    private readonly IConsumer<Null, String> _consumer;
     private readonly IServiceScopeFactory _scopeFactory;
 
     public Worker(ILogger<Worker> logger, IConsumer<Null, string> consumer, IServiceScopeFactory scopeFactory)
@@ -25,23 +25,22 @@ public class Worker : BackgroundService
     protected override async Task ExecuteAsync(CancellationToken cancellationToken)
     {
         _logger.LogInformation("Consumer started");
-        
+
         using var scope = _scopeFactory.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         await db.Database.MigrateAsync(cancellationToken);
 
         while (!cancellationToken.IsCancellationRequested)
-        {
             try
             {
                 var result = _consumer.Consume(cancellationToken);
                 if (result.Topic != TopicName) throw new Exception($"Unknown message topic {result.Topic}");
-                
+
                 _logger.LogInformation("Processing message with offset '{MessageOffset}'", result.Offset);
 
                 var report = JsonSerializer.Deserialize<FlightUpdateDto>(result.Message.Value);
                 if (report is null) throw new Exception($"Message with offset '{result.Offset}' deserialized to null");
-                
+
                 var flight = await db.Flights.Where(f => f.FlightNumber == report.FlightNumber)
                     .FirstOrDefaultAsync(cancellationToken);
 
@@ -77,6 +76,5 @@ public class Worker : BackgroundService
             {
                 _logger.LogError(ex, "An error occured while processing messages");
             }
-        }
     }
 }

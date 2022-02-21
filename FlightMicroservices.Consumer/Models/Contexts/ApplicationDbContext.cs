@@ -4,11 +4,11 @@ namespace FlightMicroservices.Consumer.Models.Contexts;
 
 public class ApplicationDbContext : DbContext
 {
-    public DbSet<Flight> Flights { get; set; } = null!;
-
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
     {
     }
+
+    public DbSet<Flight> Flights { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
