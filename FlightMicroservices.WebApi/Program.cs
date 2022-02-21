@@ -30,7 +30,7 @@ builder.Services.AddSwaggerGen(c =>
 });
 builder.Services.AddKafkaClient(new ProducerConfig
 {
-    BootstrapServers = "localhost:9092"
+    BootstrapServers = "kafka:9093"
 });
 
 // Configure middlewares.

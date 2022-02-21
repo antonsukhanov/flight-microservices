@@ -11,10 +11,11 @@ IHost host = Host.CreateDefaultBuilder(args)
             .UseNpgsql("Host=localhost;Port=5432;Database=flight-consumer-db;Username=consumer;Password=consumer"));
         services.AddKafkaClient(new ConsumerConfig
         {
-            BootstrapServers = "localhost:9092",
-            GroupId = "flight-updates-consumers",
+            BootstrapServers = "kafka:9093",
+            GroupId = "flight-microservices-consumers",
             AutoOffsetReset = AutoOffsetReset.Earliest,
-            EnableAutoCommit = false
+            EnableAutoCommit = false,
+            AllowAutoCreateTopics = true
         });
         services.AddHostedService<Worker>();
     })
